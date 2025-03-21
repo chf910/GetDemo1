@@ -2,7 +2,7 @@
 # 派大星的自我介绍  
 
 <!-- 图片设置宽度200 -->
-<img src="https://upload.wikimedia.org/wikipedia/zh/thumb/3/33/SpongeBob_SquarePants_main_characters.png/220px-SpongeBob_SquarePants_main_characters.png" width="200" alt="派大星形象">
+<img src="https://github.com/chf910/GetDemo1/blob/main/images/R-C.jpg" width="200" alt="派大星形象">
 
 **大家好，我是派大星**，我的身份是*比奇堡海滩的永久居民*。以下是我的自我介绍:
 
@@ -51,8 +51,8 @@ print(np.array([1,2,3])** 2)
 
 我最喜欢的环境管理工具是conda
 
-<img src="屏幕截图 2025-03-20 151036.png" alt="环境搭建" width="800">
+<img src="https://github.com/chf910/GetDemo1/blob/main/images/tu2.png" width="800" alt="截图一">
 
 我可以在IDE上使用我建立的虚拟环境
 
-<img src="屏幕截图 2025-03-20 151300.png" alt="环境验证" width="800">
+<img src="https://github.com/chf910/GetDemo1/blob/main/images/tu1.png" width="800" alt="截图二">
