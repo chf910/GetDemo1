@@ -49,7 +49,7 @@ print(np.array([1,2,3])** 2)
 其中执行 python dev_skills_env.py 可输出结果。
 
 
-我最喜欢的环境管理工具是conda
+我最喜欢的环境管理工具是condaaqQA
 
 <img src="https://github.com/chf910/GetDemo1/blob/main/images/tu2.png" width="800" alt="截图一">
 
