@@ -1,20 +1,85 @@
+import re
 import numpy as np
-from imblearn.over_sampling import SMOTE
-from sklearn.datasets import make_classification
+from jieba import cut
+from itertools import chain
+from collections import Counter
+from sklearn.naive_bayes import MultinomialNB
+from imblearn.over_sampling import SMOTE  # 新增SMOTE
+from sklearn.metrics import classification_report  # 新增评估报告
 
-# 模拟生成样本数据
-# 假设你已经有了特征矩阵 X 和对应的标签向量 y
-# 这里我们简单模拟一个样本不平衡的数据集
-X, y = make_classification(n_samples=151, n_features=10, n_informative=5,
-                           n_redundant=0, n_clusters_per_class=1,
-                           weights=[0.84, 0.16], random_state=42)
 
-# 初始化 SMOTE 类
-smote = SMOTE(random_state=42)
+def get_words(filename):
+    """读取文本并过滤无效字符和长度为1的词"""
+    words = []
+    with open(filename, 'r', encoding='utf-8') as fr:
+        for line in fr:
+            line = line.strip()
+            line = re.sub(r'[.【】0-9、——。，！~\*]', '', line)
+            line = cut(line)
+            line = filter(lambda word: len(word) > 1, line)
+            words.extend(line)
+    return words
 
-# 进行过采样
-X_resampled, y_resampled = smote.fit_resample(X, y)
 
-# 打印采样前后的样本数量
-print("采样前各类样本数量：", np.bincount(y))
-print("采样后各类样本数量：", np.bincount(y_resampled))
+all_words = []
+
+
+def get_top_words(top_num):
+    """获取高频词"""
+    filename_list = [f'邮件_files/{i}.txt' for i in range(151)]
+    for filename in filename_list:
+        all_words.append(get_words(filename))
+    freq = Counter(chain(*all_words))
+    return [i[0] for i in freq.most_common(top_num)]
+
+
+def main():
+    # 1. 数据准备
+    train_files = [f'邮件_files/{i}.txt' for i in range(151)]
+    test_files = [f'邮件_files/{i}.txt' for i in range(151, 156)]
+
+    # 2. 特征工程
+    top_words = get_top_words(100)
+
+    # 构建训练特征
+    vector = []
+    for words in all_words:
+        word_map = list(map(lambda word: words.count(word), top_words))
+        vector.append(word_map)
+    X_train = np.array(vector)
+    y_train = np.array([1] * 127 + [0] * 24)  # 原始标签
+
+    # 3. 样本平衡处理（新增核心代码）
+    sm = SMOTE(random_state=42)
+    X_res, y_res = sm.fit_resample(X_train, y_train)
+
+    # 4. 模型训练
+    model = MultinomialNB()
+    model.fit(X_res, y_res)
+
+    # 5. 构建测试特征
+    X_test = []
+    for file in test_files:
+        words = get_words(file)
+        word_map = list(map(lambda word: words.count(word), top_words))
+        X_test.append(word_map)
+    X_test = np.array(X_test)
+
+    # 假设测试集的真实标签（需要根据实际情况修改）
+    y_test = np.array([1, 1, 0, 0, 1])  # 示例标签
+
+    # 6. 预测与评估（新增核心代码）
+    y_pred = model.predict(X_test)
+    print("\n========== 分类评估报告 ==========")
+    print(classification_report(y_test, y_pred,
+                                target_names=["普通邮件", "垃圾邮件"]))
+
+    # 7. 输出预测结果
+    print("\n========== 邮件分类结果 ==========")
+    for i, file in enumerate(test_files):
+        result = "垃圾邮件" if y_pred[i] == 1 else "普通邮件"
+        print(f"{file} 分类情况: {result}")
+
+
+if __name__ == "__main__":
+    main()
